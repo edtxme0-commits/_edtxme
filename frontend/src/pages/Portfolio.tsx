@@ -4,6 +4,7 @@ import API_URL from '../apiConfig';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { getImageUrl, getVideoUrl } from '../utils/imageHelper';
 
 const Portfolio = () => {
   const [projects, setProjects] = useState<any[]>([]);
@@ -62,7 +63,7 @@ const Portfolio = () => {
               >
                 {/* Image takes natural aspect ratio */}
                 <img 
-                  src={project.col2?.replace(/https:\/\/(?:drive\.google\.com\/uc\?(?:export=(?:view|download)&)?id=|lh3\.googleusercontent\.com\/d\/)([^&]+).*/, 'https://drive.google.com/thumbnail?id=$1&sz=w1000')} 
+                  src={getImageUrl(project.col2)} 
                   alt={project.title} 
                   className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700" 
                   loading="lazy"
@@ -102,7 +103,7 @@ const Portfolio = () => {
                </button>
                
                <video 
-                  src={activeVideo.streamUrl?.replace('export=view', 'export=download')}
+                  src={getVideoUrl(activeVideo.streamUrl)}
                   className="w-full h-full max-h-[85vh] object-contain outline-none rounded-xl"
                   controls
                   autoPlay

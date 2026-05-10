@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Quote } from 'lucide-react';
 import axios from 'axios';
+import { getImageUrl } from '../utils/imageHelper';
 import API_URL from '../apiConfig';
 
 const initialTestimonials = [

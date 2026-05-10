@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import API_URL from '../apiConfig';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getVideoUrl } from '../utils/imageHelper';
 
 const HoverVideo = ({ src, isActive }: { src: string, isActive: boolean }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -85,7 +86,7 @@ const ReelsSection = () => {
                onClick={() => setActiveReel(reel)}
                className="relative w-full max-w-[360px] aspect-[9/16] bg-black rounded-[40px] overflow-hidden border border-white/10 shadow-2xl group cursor-pointer"
              >
-                <HoverVideo src={reel.streamUrl?.replace('export=view', 'export=download')} isActive={activeIndex === i} />
+                <HoverVideo src={getVideoUrl(reel.streamUrl)} isActive={activeIndex === i} />
                 
                 {/* Play Button Icon on hover */}
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -123,7 +124,7 @@ const ReelsSection = () => {
                </button>
                
                <video 
-                  src={activeReel.streamUrl?.replace('export=view', 'export=download')}
+                  src={getVideoUrl(activeReel.streamUrl)}
                   className="w-full h-full object-contain max-h-[100vh] outline-none"
                   controls
                   autoPlay

@@ -38,12 +38,20 @@ const HeroSection = () => {
                 {item}
               </a>
             ))}
-            <a 
-              href="/admin"
-              className="text-[#D7E2EA]/30 hover:text-[#D7E2EA] font-medium uppercase tracking-wider text-sm md:text-lg lg:text-[1.4rem] hover:opacity-70 transition-all duration-200 ml-4"
-            >
-              Admin
-            </a>
+            <div className="flex items-center gap-4 ml-4">
+              <a 
+                href="/portfolio"
+                className="px-5 py-2 rounded-full border border-[#d4a373] text-[#d4a373] hover:bg-[#d4a373] hover:text-black font-bold uppercase tracking-wider text-xs lg:text-sm transition-all"
+              >
+                Full Portfolio
+              </a>
+              <a 
+                href="/admin"
+                className="text-[#D7E2EA]/30 hover:text-[#D7E2EA] font-medium uppercase tracking-wider text-sm md:text-lg lg:text-[1.4rem] hover:opacity-70 transition-all duration-200"
+              >
+                Admin
+              </a>
+            </div>
           </div>
 
           {/* Mobile: Brand + Hamburger */}
@@ -90,6 +98,13 @@ const HeroSection = () => {
                     {item}
                   </a>
                 ))}
+                <a 
+                  href="/portfolio"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-6 py-2.5 rounded-full border border-[#d4a373] text-[#d4a373] font-bold uppercase tracking-wider text-sm transition-all mt-2"
+                >
+                  Full Portfolio
+                </a>
                 <a 
                   href="/admin"
                   onClick={() => setMobileMenuOpen(false)}

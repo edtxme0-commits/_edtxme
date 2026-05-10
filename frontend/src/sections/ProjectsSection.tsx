@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
-import axios from 'axios';
+import { getImageUrl, getVideoUrl } from '../utils/imageHelper';
 import API_URL from '../apiConfig';
 import LiveProjectButton from '../components/LiveProjectButton';
 
@@ -73,10 +73,10 @@ const ProjectCard = ({ project, index, progress, range, targetScale, onVideoClic
           {/* On mobile: hide the side column to save space, show only main image */}
           <div className="hidden sm:flex flex-col gap-2 sm:gap-4 w-full sm:w-[35%]">
             <div className="overflow-hidden rounded-[16px] sm:rounded-[30px] md:rounded-[40px] flex-1 bg-white/5 relative">
-                <img src={project.col1_1?.replace(/https:\/\/(?:drive\.google\.com\/uc\?(?:export=(?:view|download)&)?id=|lh3\.googleusercontent\.com\/d\/)([^&]+).*/, 'https://drive.google.com/thumbnail?id=$1&sz=w1000')} alt="" className={`w-full h-full object-cover transition-transform duration-700 ${isHovered ? 'scale-110' : 'scale-100'}`} />
+                <img src={getImageUrl(project.col1_1)} alt="" className={`w-full h-full object-cover transition-transform duration-700 ${isHovered ? 'scale-110' : 'scale-100'}`} />
             </div>
             <div className="overflow-hidden rounded-[16px] sm:rounded-[30px] md:rounded-[40px] flex-[1.5] bg-white/5">
-                <img src={project.col1_2?.replace(/https:\/\/(?:drive\.google\.com\/uc\?(?:export=(?:view|download)&)?id=|lh3\.googleusercontent\.com\/d\/)([^&]+).*/, 'https://drive.google.com/thumbnail?id=$1&sz=w1000')} alt="" className={`w-full h-full object-cover transition-transform duration-700 ${isHovered ? 'scale-110' : 'scale-100'}`} />
+                <img src={getImageUrl(project.col1_2)} alt="" className={`w-full h-full object-cover transition-transform duration-700 ${isHovered ? 'scale-110' : 'scale-100'}`} />
             </div>
           </div>
           
@@ -93,14 +93,14 @@ const ProjectCard = ({ project, index, progress, range, targetScale, onVideoClic
                     exit={{ opacity: 0 }}
                     className="absolute inset-0 z-20 bg-black"
                   >
-                    <HoverVideo src={project.streamUrl?.replace('export=view', 'export=download')} />
+                    <HoverVideo src={getVideoUrl(project.streamUrl)} />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                   </motion.div>
                )}
             </AnimatePresence>
             
             <img 
-              src={project.col2?.replace(/https:\/\/(?:drive\.google\.com\/uc\?(?:export=(?:view|download)&)?id=|lh3\.googleusercontent\.com\/d\/)([^&]+).*/, 'https://drive.google.com/thumbnail?id=$1&sz=w1000')} 
+              src={getImageUrl(project.col2)} 
               alt="" 
               className={`w-full h-full object-cover transition-all duration-1000 ${isHovered ? 'scale-110 blur-sm' : 'scale-100'}`} 
             />
@@ -278,7 +278,7 @@ const ProjectsSection = () => {
                </button>
                
                <video 
-                  src={fullscreenProject.streamUrl?.replace('export=view', 'export=download')}
+                  src={getVideoUrl(fullscreenProject.streamUrl)}
                   className="w-full h-full object-contain max-h-[100vh] outline-none"
                   controls
                   autoPlay
