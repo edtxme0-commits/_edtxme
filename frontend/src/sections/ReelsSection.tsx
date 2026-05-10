@@ -52,6 +52,8 @@ const ReelsSection = () => {
     setActiveIndex(index);
   };
 
+  const [activeReel, setActiveReel] = useState<any>(null);
+
   if (reels.length === 0) return null;
 
   return (
@@ -80,9 +82,18 @@ const ReelsSection = () => {
                  scale: activeIndex === i ? 1 : 0.9,
                  opacity: activeIndex === i ? 1 : 0.3
                }}
-               className="relative w-full max-w-[360px] aspect-[9/16] bg-black rounded-[40px] overflow-hidden border border-white/10 shadow-2xl group"
+               onClick={() => setActiveReel(reel)}
+               className="relative w-full max-w-[360px] aspect-[9/16] bg-black rounded-[40px] overflow-hidden border border-white/10 shadow-2xl group cursor-pointer"
              >
                 <HoverVideo src={reel.streamUrl?.replace('export=view', 'export=download')} isActive={activeIndex === i} />
+                
+                {/* Play Button Icon on hover */}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white scale-75 group-hover:scale-100 transition-transform">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                    </div>
+                </div>
+
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="absolute bottom-10 left-8 right-8 text-left translate-y-4 group-hover:translate-y-0 transition-transform opacity-0 group-hover:opacity-100">
                     <p className="text-[10px] uppercase tracking-widest text-[#d4a373] mb-2 font-bold">{reel.category}</p>
@@ -92,6 +103,41 @@ const ReelsSection = () => {
           </div>
         ))}
       </div>
+
+      {/* Fullscreen Video Modal for Reels */}
+      <AnimatePresence>
+        {activeReel && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed inset-0 z-[100] bg-black flex items-center justify-center p-0 md:p-8"
+          >
+            <div className="w-full h-full md:max-w-[500px] mx-auto bg-black md:rounded-[40px] overflow-hidden relative shadow-2xl border-0 md:border border-white/10 group flex items-center justify-center">
+               <button 
+                  onClick={() => setActiveReel(null)}
+                  className="absolute top-6 right-6 z-50 w-12 h-12 bg-black/50 hover:bg-[#d4a373] text-white hover:text-black rounded-full flex items-center justify-center backdrop-blur-md transition-colors"
+               >
+                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+               </button>
+               
+               <video 
+                  src={activeReel.streamUrl?.replace('export=view', 'export=download')}
+                  className="w-full h-full object-contain max-h-[100vh] outline-none"
+                  controls
+                  autoPlay
+                  playsInline
+               />
+               
+               <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                  <p className="text-[#d4a373] font-bold tracking-[0.3em] uppercase text-xs mb-2">{activeReel.category}</p>
+                  <h2 className="text-white font-black uppercase text-2xl md:text-3xl">{activeReel.title}</h2>
+               </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 };
