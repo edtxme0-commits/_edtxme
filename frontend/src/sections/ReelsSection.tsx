@@ -3,6 +3,31 @@ import axios from 'axios';
 import API_URL from '../apiConfig';
 import { motion, AnimatePresence } from 'framer-motion';
 
+const HoverVideo = ({ src, isActive }: { src: string, isActive: boolean }) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  
+  useEffect(() => {
+    if (videoRef.current) {
+      if (isActive) {
+        videoRef.current.play().catch(() => {});
+      } else {
+        videoRef.current.pause();
+      }
+    }
+  }, [isActive]);
+
+  return (
+    <video 
+      ref={videoRef}
+      src={src} 
+      className="w-full h-full object-cover"
+      muted 
+      loop 
+      playsInline
+    />
+  );
+};
+
 const ReelsSection = () => {
   const [reels, setReels] = useState<any[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -57,13 +82,7 @@ const ReelsSection = () => {
                }}
                className="relative w-full max-w-[360px] aspect-[9/16] bg-black rounded-[40px] overflow-hidden border border-white/10 shadow-2xl group"
              >
-                <video 
-                  src={reel.streamUrl?.replace('export=view', 'export=download')} 
-                  autoPlay={activeIndex === i}
-                  muted 
-                  loop 
-                  className="w-full h-full object-cover"
-                />
+                <HoverVideo src={reel.streamUrl?.replace('export=view', 'export=download')} isActive={activeIndex === i} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="absolute bottom-10 left-8 right-8 text-left translate-y-4 group-hover:translate-y-0 transition-transform opacity-0 group-hover:opacity-100">
                     <p className="text-[10px] uppercase tracking-widest text-[#d4a373] mb-2 font-bold">{reel.category}</p>

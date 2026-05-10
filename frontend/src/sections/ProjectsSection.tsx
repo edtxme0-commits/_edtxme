@@ -4,6 +4,28 @@ import axios from 'axios';
 import API_URL from '../apiConfig';
 import LiveProjectButton from '../components/LiveProjectButton';
 
+const HoverVideo = ({ src }: { src: string }) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.play().catch(() => {});
+    }
+  }, []);
+
+  return (
+    <video 
+      ref={videoRef}
+      src={src} 
+      className="w-full h-full object-cover"
+      autoPlay
+      muted 
+      loop 
+      playsInline
+    />
+  );
+};
+
 const ProjectCard = ({ project, index, progress, range, targetScale }: any) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -68,14 +90,7 @@ const ProjectCard = ({ project, index, progress, range, targetScale }: any) => {
                     exit={{ opacity: 0 }}
                     className="absolute inset-0 z-20 bg-black"
                   >
-                    <video 
-                        src={project.streamUrl?.replace('export=view', 'export=download')} 
-                        className="w-full h-full object-cover"
-                        autoPlay
-                        muted 
-                        loop 
-                        playsInline
-                    />
+                    <HoverVideo src={project.streamUrl?.replace('export=view', 'export=download')} />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                   </motion.div>
                )}
