@@ -212,11 +212,18 @@ const AdminDashboard = () => {
   const generateThumbnail = (file: File, timeFraction: number): Promise<File> => {
     return new Promise((resolve, reject) => {
       const video = document.createElement('video');
-      video.preload = 'metadata';
+      video.style.position = 'fixed';
+      video.style.opacity = '0';
+      video.style.pointerEvents = 'none';
       video.muted = true;
       video.playsInline = true;
+      video.setAttribute('crossorigin', 'anonymous');
+      
       const url = URL.createObjectURL(file);
       video.src = url;
+      
+      // Append to DOM to bypass browser background media loading restrictions
+      document.body.appendChild(video);
       
       video.onloadeddata = () => {
         video.currentTime = Math.max(0.1, (video.duration || 2) * timeFraction);
@@ -231,17 +238,22 @@ const AdminDashboard = () => {
           ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
           canvas.toBlob((blob) => {
             URL.revokeObjectURL(url);
+            if (document.body.contains(video)) document.body.removeChild(video);
+            
             if (blob) {
               resolve(new File([blob], `auto-thumb-${Date.now()}-${Math.floor(timeFraction*100)}.jpg`, { type: 'image/jpeg' }));
             } else reject(new Error('Blob failed'));
           }, 'image/jpeg', 0.8);
         } catch (err) {
           URL.revokeObjectURL(url);
+          if (document.body.contains(video)) document.body.removeChild(video);
           reject(err);
         }
       };
+      
       video.onerror = (e) => {
         URL.revokeObjectURL(url);
+        if (document.body.contains(video)) document.body.removeChild(video);
         reject(e);
       };
       
