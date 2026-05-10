@@ -58,7 +58,7 @@ router.post('/upload', authMiddleware, upload.single('image'), async (req, res) 
     });
 
     res.json({ 
-      url: `https://drive.google.com/uc?export=view&id=${fileId}`,
+      url: `https://drive.google.com/uc?export=download&id=${fileId}`,
       fileId: fileId 
     });
   } catch (err) {
