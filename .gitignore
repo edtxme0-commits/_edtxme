@@ -1,0 +1,102 @@
+# ===========================
+# Node.js / npm
+# ===========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+package-lock.json
+
+# ===========================
+# Environment Variables (PRIVATE - SECRETS)
+# ===========================
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# ===========================
+# Build Outputs
+# ===========================
+dist/
+dist-ssr/
+build/
+.output/
+.cache/
+
+# ===========================
+# IDE / Editor Files
+# ===========================
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.code-workspace
+
+# ===========================
+# OS Generated Files
+# ===========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+thumbs.db
+desktop.ini
+ehthumbs.db
+ehthumbs_vista.db
+$RECYCLE.BIN/
+
+# ===========================
+# Logs
+# ===========================
+logs/
+*.log
+
+# ===========================
+# Miscellaneous
+# ===========================
+*.tgz
+*.pid
+*.seed
+*.pid.lock
+.eslintcache
+.stylelintcache
+.parcel-cache
+.next/
+.nuxt/
+.turbo/
+.vercel/
+
+# ===========================
+# Coverage & Testing
+# ===========================
+coverage/
+*.lcov
+.nyc_output/
+
+# ===========================
+# Temporary Files
+# ===========================
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# ===========================
+# Debug Files
+# ===========================
+*.map
+
+# ===========================
+# Uploads (user uploaded content)
+# ===========================
+uploads/

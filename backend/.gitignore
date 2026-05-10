@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Environment variables (PRIVATE - contains passwords, API keys, secrets)
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build
+dist/
+build/
+
+# Uploads (user content - not for git)
+uploads/
+
+# Package lock (regenerated via npm install)
+package-lock.json
