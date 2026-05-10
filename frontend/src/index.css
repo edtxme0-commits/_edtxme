@@ -27,3 +27,31 @@
     -webkit-text-fill-color: transparent;
   }
 }
+
+/* Hide scrollbar but allow scroll */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Mobile viewport height fix for address bar */
+@supports (height: 100dvh) {
+  .h-screen {
+    height: 100dvh;
+  }
+}
+
+/* Ensure tap highlights are subtle on mobile */
+@media (max-width: 767px) {
+  a, button {
+    -webkit-tap-highlight-color: rgba(212, 163, 115, 0.15);
+  }
+  
+  /* Prevent horizontal overflow on mobile */
+  body {
+    overflow-x: hidden;
+  }
+}

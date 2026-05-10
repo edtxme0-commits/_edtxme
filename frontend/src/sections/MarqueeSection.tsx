@@ -56,7 +56,7 @@ const MarqueeSection = () => {
   const row2Images = [...imageList.slice(mid), ...imageList.slice(mid), ...imageList.slice(mid), ...imageList.slice(mid)];
 
   return (
-    <section ref={sectionRef} className="bg-[#0C0C0C] pt-24 sm:pt-32 md:pt-40 pb-10 overflow-hidden w-full flex flex-col gap-4">
+    <section ref={sectionRef} className="bg-[#0C0C0C] pt-16 sm:pt-32 md:pt-40 pb-6 sm:pb-10 overflow-hidden w-full flex flex-col gap-2 sm:gap-4">
       {/* Row 1 (Moves Right) */}
       <div 
         className="flex gap-4 whitespace-nowrap will-change-transform"
@@ -67,7 +67,7 @@ const MarqueeSection = () => {
             key={`r1-${i}`} 
             src={src} 
             loading="lazy"
-            className="w-[300px] sm:w-[400px] md:w-[480px] h-[200px] sm:h-[260px] md:h-[320px] rounded-[24px] object-cover shrink-0 grayscale hover:grayscale-0 transition-all duration-700" 
+            className="w-[200px] sm:w-[400px] md:w-[480px] h-[130px] sm:h-[260px] md:h-[320px] rounded-[14px] sm:rounded-[24px] object-cover shrink-0 grayscale hover:grayscale-0 transition-all duration-700" 
             alt="Portfolio Work" 
           />
         ))}
@@ -83,7 +83,7 @@ const MarqueeSection = () => {
             key={`r2-${i}`} 
             src={src} 
             loading="lazy"
-            className="w-[300px] sm:w-[400px] md:w-[480px] h-[200px] sm:h-[260px] md:h-[320px] rounded-[24px] object-cover shrink-0 grayscale hover:grayscale-0 transition-all duration-700" 
+            className="w-[200px] sm:w-[400px] md:w-[480px] h-[130px] sm:h-[260px] md:h-[320px] rounded-[14px] sm:rounded-[24px] object-cover shrink-0 grayscale hover:grayscale-0 transition-all duration-700" 
             alt="Portfolio Work" 
           />
         ))}

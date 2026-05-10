@@ -35,8 +35,8 @@ function LandingPage() {
       <TimelineSection />
       <ContactSection />
       {/* Admin Login Section directly on Home Page */}
-      <div className="py-20 border-t border-white/10">
-        <h2 className="text-center text-[#D7E2EA]/30 uppercase tracking-[0.3em] text-sm mb-10">Admin Access</h2>
+      <div className="py-12 sm:py-20 border-t border-white/10">
+        <h2 className="text-center text-[#D7E2EA]/30 uppercase tracking-[0.2em] sm:tracking-[0.3em] text-xs sm:text-sm mb-6 sm:mb-10">Admin Access</h2>
         <AdminLogin />
       </div>
     </main>

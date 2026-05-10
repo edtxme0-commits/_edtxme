@@ -30,10 +30,10 @@ const ReelsSection = () => {
   if (reels.length === 0) return null;
 
   return (
-    <section className="bg-[#0C0C0C] py-20 overflow-hidden">
-      <div className="px-6 md:px-10 mb-10 flex flex-col md:flex-row justify-between items-end gap-6 max-w-7xl mx-auto">
+    <section className="bg-[#0C0C0C] py-12 sm:py-20 overflow-hidden">
+      <div className="px-4 sm:px-6 md:px-10 mb-6 sm:mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-4 sm:gap-6 max-w-7xl mx-auto">
          <div>
-            <h2 className="hero-heading font-black uppercase text-[clamp(2rem,6vw,80px)] leading-none">Social Reels</h2>
+            <h2 className="hero-heading font-black uppercase text-[clamp(1.5rem,6vw,80px)] leading-none">Social Reels</h2>
             <p className="text-[10px] uppercase tracking-[0.3em] opacity-40 mt-2">Mobile-First Cinematic Storytelling</p>
          </div>
          <div className="flex gap-2">
@@ -46,7 +46,7 @@ const ReelsSection = () => {
       <div 
         ref={containerRef}
         onScroll={handleScroll}
-        className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar gap-6 px-[10vw] md:px-[25vw]"
+        className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar gap-4 sm:gap-6 px-[5vw] sm:px-[10vw] md:px-[25vw]"
       >
         {reels.map((reel, i) => (
           <div key={reel._id} className="min-w-full snap-center flex justify-center">

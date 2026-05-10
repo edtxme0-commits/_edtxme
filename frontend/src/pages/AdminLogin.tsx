@@ -82,10 +82,10 @@ const AdminLogin = () => {
         }}
       />
 
-      <div className="flex items-center justify-center gap-12 z-10 flex-wrap w-full max-w-[1000px]">
+      <div className="flex items-center justify-center gap-6 sm:gap-12 z-10 flex-col sm:flex-row w-full max-w-[1000px] px-4 sm:px-0">
         
         {/* Cute Lamp */}
-        <div className="relative w-[280px] h-[400px] flex justify-center">
+        <div className="relative w-[180px] sm:w-[280px] h-[260px] sm:h-[400px] flex justify-center">
           <svg className="w-full h-full overflow-visible" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
             <ellipse 
               className="transition-opacity duration-500" 
@@ -115,7 +115,7 @@ const AdminLogin = () => {
 
         {/* Login Form */}
         <div 
-          className="bg-white/5 backdrop-blur-xl p-10 rounded-[30px] w-[340px] border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.3)] transition-all duration-700 ease-[cubic-bezier(0.175,0.885,0.32,1.275)]"
+          className="bg-white/5 backdrop-blur-xl p-6 sm:p-10 rounded-[24px] sm:rounded-[30px] w-full sm:w-[340px] border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.3)] transition-all duration-700 ease-[cubic-bezier(0.175,0.885,0.32,1.275)]"
           style={{
             opacity: isOn ? 1 : 0,
             transform: isOn ? 'translateY(0)' : 'translateY(30px)',
