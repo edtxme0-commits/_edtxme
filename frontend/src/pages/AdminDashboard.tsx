@@ -218,27 +218,34 @@ const AdminDashboard = () => {
       const url = URL.createObjectURL(file);
       video.src = url;
       
-      video.onloadedmetadata = () => {
-        video.currentTime = Math.max(0.1, video.duration * timeFraction || 0.1);
+      video.onloadeddata = () => {
+        video.currentTime = Math.max(0.1, (video.duration || 2) * timeFraction);
       };
       
       video.onseeked = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        const ctx = canvas.getContext('2d');
-        ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
-        canvas.toBlob((blob) => {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = video.videoWidth || 1280;
+          canvas.height = video.videoHeight || 720;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
+          canvas.toBlob((blob) => {
+            URL.revokeObjectURL(url);
+            if (blob) {
+              resolve(new File([blob], `auto-thumb-${Date.now()}-${Math.floor(timeFraction*100)}.jpg`, { type: 'image/jpeg' }));
+            } else reject(new Error('Blob failed'));
+          }, 'image/jpeg', 0.8);
+        } catch (err) {
           URL.revokeObjectURL(url);
-          if (blob) {
-            resolve(new File([blob], `auto-thumb-${Date.now()}.jpg`, { type: 'image/jpeg' }));
-          } else reject(new Error('Blob failed'));
-        }, 'image/jpeg', 0.8);
+          reject(err);
+        }
       };
       video.onerror = (e) => {
         URL.revokeObjectURL(url);
         reject(e);
       };
+      
+      video.load();
     });
   };
 
@@ -251,6 +258,13 @@ const AdminDashboard = () => {
       const t2 = await generateThumbnail(file, 0.4);
       const t3 = await generateThumbnail(file, 0.7);
       setAutoThumbnails([t1, t2, t3]);
+      
+      setFormData(prev => ({
+        ...prev,
+        col1_1: prev.col1_1 || t1,
+        col1_2: prev.col1_2 || t2,
+        col2: prev.col2 || t3
+      }));
     } catch (e) {
       console.error("Thumbnail generation failed", e);
     }
