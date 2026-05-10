@@ -302,7 +302,7 @@ const AdminDashboard = () => {
     const isFile = value instanceof File;
     let previewUrl = isFile ? URL.createObjectURL(value) : value;
     if (typeof previewUrl === 'string') {
-      previewUrl = previewUrl.replace(/https:\/\/drive\.google\.com\/uc\?(?:export=(?:view|download)&)?id=([^&]+).*/, 'https://lh3.googleusercontent.com/d/$1');
+      previewUrl = previewUrl.replace(/https:\/\/(?:drive\.google\.com\/uc\?(?:export=(?:view|download)&)?id=|lh3\.googleusercontent\.com\/d\/)([^&]+).*/, 'https://drive.google.com/thumbnail?id=$1&sz=w1000');
     }
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -324,36 +324,36 @@ const AdminDashboard = () => {
     return (
       <div className="space-y-2">
         <label className="block text-[9px] uppercase tracking-widest opacity-50 px-1">{label}</label>
-        <div className="flex gap-4">
-          <div className="flex-1 space-y-2">
-            <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center">
+          {previewUrl && (
+            <div className="w-14 h-14 rounded-xl border border-white/10 overflow-hidden bg-black shrink-0 relative">
+                {isFile && !isUploading && <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-[8px] font-bold text-white uppercase text-center p-1 z-10 pointer-events-none leading-tight">Not<br/>Uploaded</div>}
+                {isUploading && <div className="absolute inset-0 bg-black/80 flex items-center justify-center text-[8px] font-bold text-white uppercase text-center p-1 z-10 pointer-events-none">Uploading...</div>}
+                <img src={previewUrl} className={`w-full h-full object-cover ${(isFile || isUploading) ? 'opacity-50' : ''}`} />
+            </div>
+          )}
+          <div className="flex-1 w-full space-y-2">
+            <div className="flex flex-wrap sm:flex-nowrap gap-2 w-full">
               <input 
                  type="text" 
                  value={isFile ? value.name : value || ''} 
                  onChange={e => onChange(e.target.value)} 
-                 className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-[10px] text-white outline-none" 
-                 placeholder="URL or Select File" 
+                 className="flex-1 min-w-[120px] bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-[10px] text-white outline-none" 
+                 placeholder="URL or File" 
               />
               {!isFile ? (
-                <button type="button" onClick={() => fileRef.current?.click()} className="px-4 py-3 bg-white/10 hover:bg-white/20 rounded-xl text-[10px] uppercase font-bold transition-all shrink-0">Select Image</button>
+                <button type="button" onClick={() => fileRef.current?.click()} className="px-4 py-2.5 bg-white/10 hover:bg-white/20 rounded-xl text-[10px] uppercase font-bold transition-all shrink-0 whitespace-nowrap">Select</button>
               ) : (
                 <div className="flex gap-2 shrink-0">
-                  <button type="button" onClick={() => fileRef.current?.click()} className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-[10px] uppercase font-bold transition-all">Change</button>
-                  <button type="button" onClick={doUpload} disabled={isUploading} className="px-4 py-3 bg-green-500 text-black rounded-xl text-[10px] uppercase font-black transition-all hover:scale-[0.98]">
-                    {isUploading ? 'Uploading...' : 'Upload Now'}
+                  <button type="button" onClick={() => fileRef.current?.click()} className="px-3 py-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-[10px] uppercase font-bold transition-all whitespace-nowrap">Change</button>
+                  <button type="button" onClick={doUpload} disabled={isUploading} className="px-4 py-2.5 bg-green-500 text-black rounded-xl text-[10px] uppercase font-black transition-all hover:scale-[0.98] whitespace-nowrap">
+                    {isUploading ? 'Wait...' : 'Upload'}
                   </button>
                 </div>
               )}
             </div>
             <input type="file" ref={fileRef} className="hidden" accept="image/*" onChange={handleFileChange} />
           </div>
-          {previewUrl && (
-            <div className="w-16 h-16 rounded-xl border border-white/10 overflow-hidden bg-black shrink-0 relative">
-                {isFile && !isUploading && <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-[8px] font-bold text-white uppercase text-center p-1 z-10 pointer-events-none">Not<br/>Uploaded</div>}
-                {isUploading && <div className="absolute inset-0 bg-black/80 flex items-center justify-center text-[8px] font-bold text-white uppercase text-center p-1 z-10 pointer-events-none">Uploading...</div>}
-                <img src={previewUrl} className={`w-full h-full object-cover ${(isFile || isUploading) ? 'opacity-50' : ''}`} />
-            </div>
-          )}
         </div>
       </div>
     );
@@ -534,7 +534,7 @@ const AdminDashboard = () => {
                   <div key={v._id} className={`p-5 rounded-2xl flex justify-between items-center border ${v.isFeatured ? 'bg-[#d4a373]/5 border-[#d4a373]/30' : 'bg-black/20 border-white/5'}`}>
                     <div className="flex items-center gap-6">
                       <div className="relative">
-                        <img src={v.col2?.replace(/https:\/\/drive\.google\.com\/uc\?(?:export=(?:view|download)&)?id=([^&]+).*/, 'https://lh3.googleusercontent.com/d/$1')} className="w-16 h-10 object-cover rounded-md opacity-40" />
+                        <img src={v.col2?.replace(/https:\/\/(?:drive\.google\.com\/uc\?(?:export=(?:view|download)&)?id=|lh3\.googleusercontent\.com\/d\/)([^&]+).*/, 'https://drive.google.com/thumbnail?id=$1&sz=w1000')} className="w-16 h-10 object-cover rounded-md opacity-40" />
                         <span className="absolute inset-0 flex items-center justify-center text-xs font-black">{String(i+1).padStart(2,'0')}</span>
                       </div>
                       <div>
@@ -605,7 +605,7 @@ const AdminDashboard = () => {
                     {team.map(member => (
                       <div key={member._id} className="p-4 bg-black/20 border border-white/5 rounded-2xl flex justify-between items-center">
                         <div className="flex items-center gap-4">
-                          <img src={member.image?.replace(/https:\/\/drive\.google\.com\/uc\?(?:export=(?:view|download)&)?id=([^&]+).*/, 'https://lh3.googleusercontent.com/d/$1')} className="w-10 h-10 rounded-full object-cover border border-white/10" />
+                          <img src={member.image?.replace(/https:\/\/(?:drive\.google\.com\/uc\?(?:export=(?:view|download)&)?id=|lh3\.googleusercontent\.com\/d\/)([^&]+).*/, 'https://drive.google.com/thumbnail?id=$1&sz=w1000')} className="w-10 h-10 rounded-full object-cover border border-white/10" />
                           <div>
                             <div className="flex items-center gap-2">
                               <h4 className="font-bold uppercase text-xs">{member.name}</h4>
@@ -665,7 +665,7 @@ const AdminDashboard = () => {
                   {testimonials.map(t => (
                     <div key={t._id} className="p-6 bg-black/20 border border-white/5 rounded-2xl flex justify-between items-start gap-6">
                        <div className="flex gap-4">
-                          <img src={t.image?.replace(/https:\/\/drive\.google\.com\/uc\?(?:export=(?:view|download)&)?id=([^&]+).*/, 'https://lh3.googleusercontent.com/d/$1')} className="w-12 h-12 rounded-full object-cover border border-[#d4a373]" />
+                          <img src={t.image?.replace(/https:\/\/(?:drive\.google\.com\/uc\?(?:export=(?:view|download)&)?id=|lh3\.googleusercontent\.com\/d\/)([^&]+).*/, 'https://drive.google.com/thumbnail?id=$1&sz=w1000')} className="w-12 h-12 rounded-full object-cover border border-[#d4a373]" />
                           <div>
                              <h4 className="font-bold uppercase text-sm">{t.name}</h4>
                              <p className="text-[10px] uppercase opacity-40 mb-3">{t.role}</p>

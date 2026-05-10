@@ -26,7 +26,7 @@ const HoverVideo = ({ src }: { src: string }) => {
   );
 };
 
-const ProjectCard = ({ project, index, progress, range, targetScale }: any) => {
+const ProjectCard = ({ project, index, progress, range, targetScale, onVideoClick }: any) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -73,14 +73,17 @@ const ProjectCard = ({ project, index, progress, range, targetScale }: any) => {
           {/* On mobile: hide the side column to save space, show only main image */}
           <div className="hidden sm:flex flex-col gap-2 sm:gap-4 w-full sm:w-[35%]">
             <div className="overflow-hidden rounded-[16px] sm:rounded-[30px] md:rounded-[40px] flex-1 bg-white/5 relative">
-                <img src={project.col1_1?.replace(/https:\/\/drive\.google\.com\/uc\?(?:export=(?:view|download)&)?id=([^&]+).*/, 'https://lh3.googleusercontent.com/d/$1')} alt="" className={`w-full h-full object-cover transition-transform duration-700 ${isHovered ? 'scale-110' : 'scale-100'}`} />
+                <img src={project.col1_1?.replace(/https:\/\/(?:drive\.google\.com\/uc\?(?:export=(?:view|download)&)?id=|lh3\.googleusercontent\.com\/d\/)([^&]+).*/, 'https://drive.google.com/thumbnail?id=$1&sz=w1000')} alt="" className={`w-full h-full object-cover transition-transform duration-700 ${isHovered ? 'scale-110' : 'scale-100'}`} />
             </div>
             <div className="overflow-hidden rounded-[16px] sm:rounded-[30px] md:rounded-[40px] flex-[1.5] bg-white/5">
-                <img src={project.col1_2?.replace(/https:\/\/drive\.google\.com\/uc\?(?:export=(?:view|download)&)?id=([^&]+).*/, 'https://lh3.googleusercontent.com/d/$1')} alt="" className={`w-full h-full object-cover transition-transform duration-700 ${isHovered ? 'scale-110' : 'scale-100'}`} />
+                <img src={project.col1_2?.replace(/https:\/\/(?:drive\.google\.com\/uc\?(?:export=(?:view|download)&)?id=|lh3\.googleusercontent\.com\/d\/)([^&]+).*/, 'https://drive.google.com/thumbnail?id=$1&sz=w1000')} alt="" className={`w-full h-full object-cover transition-transform duration-700 ${isHovered ? 'scale-110' : 'scale-100'}`} />
             </div>
           </div>
           
-          <div className="w-full sm:w-[65%] rounded-[16px] sm:rounded-[30px] md:rounded-[40px] overflow-hidden bg-white/5 relative group/media flex-1">
+          <div 
+            onClick={() => project.streamUrl && onVideoClick(project)}
+            className={`w-full sm:w-[65%] rounded-[16px] sm:rounded-[30px] md:rounded-[40px] overflow-hidden bg-white/5 relative group/media flex-1 ${project.streamUrl ? 'cursor-pointer' : ''}`}
+          >
             {/* Netflix Style Video Overlay */}
             <AnimatePresence>
                {isHovered && project.streamUrl && (
@@ -97,7 +100,7 @@ const ProjectCard = ({ project, index, progress, range, targetScale }: any) => {
             </AnimatePresence>
             
             <img 
-              src={project.col2?.replace(/https:\/\/drive\.google\.com\/uc\?(?:export=(?:view|download)&)?id=([^&]+).*/, 'https://lh3.googleusercontent.com/d/$1')} 
+              src={project.col2?.replace(/https:\/\/(?:drive\.google\.com\/uc\?(?:export=(?:view|download)&)?id=|lh3\.googleusercontent\.com\/d\/)([^&]+).*/, 'https://drive.google.com/thumbnail?id=$1&sz=w1000')} 
               alt="" 
               className={`w-full h-full object-cover transition-all duration-1000 ${isHovered ? 'scale-110 blur-sm' : 'scale-100'}`} 
             />
@@ -115,6 +118,7 @@ const ProjectsSection = () => {
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('newest');
   const [showFilters, setShowFilters] = useState(false);
+  const [fullscreenProject, setFullscreenProject] = useState<any>(null);
   const containerRef = useRef(null);
   
   useEffect(() => {
@@ -235,6 +239,7 @@ const ProjectsSection = () => {
                             progress={scrollYProgress} 
                             range={range} 
                             targetScale={targetScale} 
+                            onVideoClick={setFullscreenProject}
                         />
                     );
                 })
@@ -245,6 +250,50 @@ const ProjectsSection = () => {
             )}
         </AnimatePresence>
       </div>
+
+      {/* View Full Portfolio Button */}
+      <div className="flex justify-center mt-12 sm:mt-20 relative z-30">
+        <a href="/portfolio" className="group flex items-center gap-3 px-8 sm:px-10 py-4 rounded-full bg-white/5 border border-white/10 hover:bg-[#d4a373] hover:text-black transition-all duration-300">
+           <span className="font-bold uppercase tracking-widest text-[10px] sm:text-xs">View Full Portfolio</span>
+           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="group-hover:translate-x-1 transition-transform"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+
+      {/* Fullscreen Video Modal */}
+      <AnimatePresence>
+        {fullscreenProject && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed inset-0 z-[100] bg-black flex items-center justify-center p-0 md:p-8"
+          >
+            <div className="w-full h-full bg-black md:rounded-[40px] overflow-hidden relative shadow-2xl border-0 md:border border-white/10 group flex items-center justify-center">
+               <button 
+                  onClick={() => setFullscreenProject(null)}
+                  className="absolute top-6 right-6 z-50 w-12 h-12 bg-black/50 hover:bg-[#d4a373] text-white hover:text-black rounded-full flex items-center justify-center backdrop-blur-md transition-colors"
+               >
+                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+               </button>
+               
+               <video 
+                  src={fullscreenProject.streamUrl?.replace('export=view', 'export=download')}
+                  className="w-full h-full object-contain max-h-[100vh] outline-none"
+                  controls
+                  autoPlay
+                  playsInline
+               />
+               
+               {/* Metadata overlay on hover (desktop) or fixed (mobile) */}
+               <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                  <p className="text-[#d4a373] font-bold tracking-[0.3em] uppercase text-xs mb-2">{fullscreenProject.category}</p>
+                  <h2 className="text-white font-black uppercase text-3xl md:text-5xl">{fullscreenProject.name}</h2>
+               </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 };

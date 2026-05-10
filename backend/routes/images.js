@@ -58,7 +58,7 @@ router.post('/upload', authMiddleware, upload.single('image'), async (req, res) 
     });
 
     res.json({ 
-      url: `https://lh3.googleusercontent.com/d/${fileId}`,
+      url: `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`,
       fileId: fileId 
     });
   } catch (err) {
