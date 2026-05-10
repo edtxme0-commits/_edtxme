@@ -123,13 +123,35 @@ router.delete('/:id', authMiddleware, async (req, res) => {
 
     const driveService = getDriveService();
     if (driveService) {
-      try {
-        await driveService.files.delete({ fileId: video.driveFileId });
-      } catch (driveErr) {}
+      const extractDriveId = (url) => {
+        if (!url) return null;
+        let match = url.match(/id=([^&]+)/);
+        if (match) return match[1];
+        match = url.match(/lh3\.googleusercontent\.com\/d\/([^\/]+)/);
+        if (match) return match[1];
+        match = url.match(/file\/d\/([^\/]+)/);
+        if (match) return match[1];
+        match = url.match(/\/api\/images\/proxy\/([^\/]+)/);
+        if (match) return match[1];
+        return null;
+      };
+
+      const urls = [video.streamUrl, video.col1_1, video.col1_2, video.col2];
+      const driveIds = urls.map(extractDriveId).filter(id => id != null);
+      if (video.driveFileId) driveIds.push(video.driveFileId);
+      
+      const uniqueIds = [...new Set(driveIds)];
+      for (const fileId of uniqueIds) {
+        try {
+          await driveService.files.delete({ fileId });
+        } catch (e) {
+          console.error(`Failed to delete Drive file ${fileId}:`, e.message);
+        }
+      }
     }
 
     await Video.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Video deleted successfully' });
+    res.json({ message: 'Video and associated thumbnails deleted successfully' });
   } catch (err) {
     res.status(500).json({ message: 'Error deleting video', error: err.message });
   }
