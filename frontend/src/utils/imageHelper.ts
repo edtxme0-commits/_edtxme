@@ -37,6 +37,10 @@ export const getImageUrl = (url: string | undefined | null) => {
 export const getVideoUrl = (url: string | undefined | null) => {
   if (!url) return '';
   
+  if (url.startsWith('/api/images/proxy')) {
+    return `${API_URL}${url}`;
+  }
+  
   let id = null;
   const matchDrive = url.match(/id=([^&]+)/);
   if (matchDrive) id = matchDrive[1];
@@ -47,8 +51,7 @@ export const getVideoUrl = (url: string | undefined | null) => {
   }
   
   if (id) {
-    // Add confirm=t to bypass the "Google Drive can't scan this file for viruses" warning which breaks <video> tags
-    return `https://drive.google.com/uc?export=download&id=${id}&confirm=t`;
+    return `${API_URL}/api/images/proxy/${id}`;
   }
   
   return url;

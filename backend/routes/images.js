@@ -74,22 +74,27 @@ router.get('/proxy/:id', async (req, res) => {
     const driveService = getDriveService();
     if (!driveService) return res.status(500).send('Google Drive not configured');
     
-    // Try fetching metadata to get the proper mimeType
-    try {
-      const meta = await driveService.files.get({ fileId, fields: 'mimeType' });
-      if (meta.data.mimeType) {
-        res.setHeader('Content-Type', meta.data.mimeType);
-      }
-    } catch (e) {}
+    const requestHeaders = {};
+    if (req.headers.range) {
+      requestHeaders.Range = req.headers.range;
+    }
 
     // Stream the file content directly
     const response = await driveService.files.get(
       { fileId: fileId, alt: 'media' },
-      { responseType: 'stream' }
+      { responseType: 'stream', headers: requestHeaders }
     );
     
-    // Add caching headers so the browser caches the image aggressively
+    // Forward important headers for video streaming
+    const headersToForward = ['content-type', 'content-length', 'content-range', 'accept-ranges'];
+    headersToForward.forEach(h => {
+      if (response.headers[h]) {
+        res.setHeader(h, response.headers[h]);
+      }
+    });
+
     res.setHeader('Cache-Control', 'public, max-age=31536000');
+    res.status(response.status);
     
     response.data.pipe(res);
   } catch (error) {
