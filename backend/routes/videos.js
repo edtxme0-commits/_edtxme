@@ -6,9 +6,12 @@ const stream = require('stream');
 const { authMiddleware } = require('./auth');
 const Video = require('../models/Video');
 
-// Configure Multer for memory storage
+const os = require('os');
+const fs = require('fs');
+
+// Configure Multer for disk storage to prevent OOM errors on Render
 const upload = multer({
-  storage: multer.memoryStorage(),
+  dest: os.tmpdir(),
   limits: { fileSize: 100 * 1024 * 1024 }, // 100MB limit
 });
 
@@ -67,9 +70,6 @@ router.post('/upload', authMiddleware, upload.single('video'), async (req, res) 
     const driveService = getDriveService();
     if (!driveService) return res.status(500).json({ message: 'Google Drive integration not configured' });
 
-    const bufferStream = new stream.PassThrough();
-    bufferStream.end(file.buffer);
-
     const driveRes = await driveService.files.create({
       requestBody: {
         name: `${title} - ${Date.now()}`,
@@ -78,10 +78,17 @@ router.post('/upload', authMiddleware, upload.single('video'), async (req, res) 
       },
       media: {
         mimeType: file.mimetype,
-        body: bufferStream,
+        body: fs.createReadStream(file.path),
       },
       fields: 'id',
     });
+
+    // Cleanup temp file
+    try {
+      fs.unlinkSync(file.path);
+    } catch (e) {
+      console.error('Temp file cleanup failed:', e);
+    }
 
     const fileId = driveRes.data.id;
     await driveService.permissions.create({

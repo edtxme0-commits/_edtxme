@@ -41,6 +41,8 @@ const AdminDashboard = () => {
     col2: '',
     isFeatured: false
   });
+  const [autoThumbnails, setAutoThumbnails] = useState<File[]>([]);
+  const [generatingThumbs, setGeneratingThumbs] = useState(false);
 
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [testimonyData, setTestimonyData] = useState({ name: '', role: '', text: '', image: '' });
@@ -175,16 +177,67 @@ const AdminDashboard = () => {
           'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
         }
       });
-      if (isProject) {
-        setFormData(prev => ({ ...prev, [targetKey]: res.data.url }));
-      } else {
-        setSiteContent(prev => ({ ...prev, [targetKey]: res.data.url }));
+      if (targetKey) {
+        if (isProject) {
+          setFormData(prev => ({ ...prev, [targetKey]: res.data.url }));
+        } else {
+          setSiteContent(prev => ({ ...prev, [targetKey]: res.data.url }));
+        }
       }
       return res.data.url;
-    } catch (error) {
-      alert('Upload failed.');
+    } catch (error: any) {
+      alert(`Image Upload failed: ${error.response?.data?.message || error.message}`);
       return null;
     }
+  };
+
+  // Auto Thumbnail Generation Logic
+  const generateThumbnail = (file: File, timeFraction: number): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      video.muted = true;
+      video.playsInline = true;
+      const url = URL.createObjectURL(file);
+      video.src = url;
+      
+      video.onloadedmetadata = () => {
+        video.currentTime = Math.max(0.1, video.duration * timeFraction || 0.1);
+      };
+      
+      video.onseeked = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob((blob) => {
+          URL.revokeObjectURL(url);
+          if (blob) {
+            resolve(new File([blob], `auto-thumb-${Date.now()}.jpg`, { type: 'image/jpeg' }));
+          } else reject(new Error('Blob failed'));
+        }, 'image/jpeg', 0.8);
+      };
+      video.onerror = (e) => {
+        URL.revokeObjectURL(url);
+        reject(e);
+      };
+    });
+  };
+
+  const handleVideoSelection = async (file: File) => {
+    setFormData(prev => ({ ...prev, videoFile: file }));
+    setGeneratingThumbs(true);
+    try {
+      // Generate 3 thumbnails at 10%, 40%, 70% of the video duration
+      const t1 = await generateThumbnail(file, 0.1);
+      const t2 = await generateThumbnail(file, 0.4);
+      const t3 = await generateThumbnail(file, 0.7);
+      setAutoThumbnails([t1, t2, t3]);
+    } catch (e) {
+      console.error("Thumbnail generation failed", e);
+    }
+    setGeneratingThumbs(false);
   };
 
   const toggleFeatured = async (id: string, currentStatus: boolean) => {
@@ -231,9 +284,32 @@ const AdminDashboard = () => {
     e.preventDefault();
     if (!formData.videoFile) return alert('Select video');
     setUploading(true);
+
+    let finalCol1_1 = formData.col1_1;
+    let finalCol1_2 = formData.col1_2;
+    let finalCol2 = formData.col2;
+
+    try {
+      // Auto upload generated thumbnails to Drive if manual ones are missing
+      if (!finalCol1_1 && autoThumbnails[0]) {
+        finalCol1_1 = await handleImageUpload(autoThumbnails[0], '', true) || '';
+      }
+      if (!finalCol1_2 && autoThumbnails[1]) {
+        finalCol1_2 = await handleImageUpload(autoThumbnails[1], '', true) || '';
+      }
+      if (!finalCol2 && autoThumbnails[2]) {
+        finalCol2 = await handleImageUpload(autoThumbnails[2], '', true) || '';
+      }
+    } catch(err) {
+      console.error("Error uploading auto thumbnails", err);
+    }
+
     const data = new FormData();
     Object.entries(formData).forEach(([k, v]) => {
         if (k === 'videoFile') data.append('video', v as Blob);
+        else if (k === 'col1_1') data.append(k, finalCol1_1);
+        else if (k === 'col1_2') data.append(k, finalCol1_2);
+        else if (k === 'col2') data.append(k, finalCol2);
         else data.append(k, String(v));
     });
     try {
@@ -244,10 +320,11 @@ const AdminDashboard = () => {
       setUploading(false);
       fetchVideos();
       setFormData({ title: '', category: '', videoFile: null, col1_1: '', col1_2: '', col2: '', isFeatured: false });
+      setAutoThumbnails([]);
       alert('Project uploaded successfully!');
-    } catch (error) {
+    } catch (error: any) {
       setUploading(false);
-      alert('Upload failed.');
+      alert(`Upload failed: ${error.response?.data?.message || error.message}`);
     }
   };
 
@@ -272,7 +349,7 @@ const AdminDashboard = () => {
     e.stopPropagation();
     setIsDragging(false);
     if (e.dataTransfer.files?.[0]) {
-      setFormData({ ...formData, videoFile: e.dataTransfer.files[0] });
+      handleVideoSelection(e.dataTransfer.files[0]);
     }
   };
 
@@ -323,7 +400,7 @@ const AdminDashboard = () => {
                   className={`border-2 border-dashed rounded-2xl p-6 text-center transition-all ${isDragging ? 'border-[#d4a373] bg-[#d4a373]/10' : 'border-white/10 bg-black/20'} ${formData.videoFile ? 'border-green-500/50 bg-green-500/5' : ''}`}
                 >
                   <p className="text-[10px] uppercase font-bold opacity-40 mb-2">{formData.videoFile ? 'Video Selected ✅' : 'Drag & Drop Video'}</p>
-                  <input type="file" accept="video/*" onChange={e => e.target.files && setFormData({...formData, videoFile: e.target.files[0]})} className="hidden" id="video-upload" />
+                  <input type="file" accept="video/*" onChange={e => e.target.files && handleVideoSelection(e.target.files[0])} className="hidden" id="video-upload" />
                   <label htmlFor="video-upload" className="text-[10px] text-[#d4a373] cursor-pointer hover:underline">{formData.videoFile ? formData.videoFile.name : 'Or click to browse'}</label>
                 </div>
 
@@ -338,9 +415,15 @@ const AdminDashboard = () => {
                    </div>
                 </div>
 
-                <ImageInput label="Thumbnail 1" value={formData.col1_1} onChange={(v:any) => setFormData({...formData, col1_1: v})} onUpload={(f:any) => handleImageUpload(f, 'col1_1', true)} />
-                <ImageInput label="Thumbnail 2" value={formData.col1_2} onChange={(v:any) => setFormData({...formData, col1_2: v})} onUpload={(f:any) => handleImageUpload(f, 'col1_2', true)} />
-                <ImageInput label="Thumbnail 3" value={formData.col2} onChange={(v:any) => setFormData({...formData, col2: v})} onUpload={(f:any) => handleImageUpload(f, 'col2', true)} />
+                <div className="pt-2">
+                   <p className="text-[10px] uppercase font-bold opacity-40 mb-2 text-center text-[#d4a373]">
+                     {generatingThumbs ? '⏳ Generating Auto-Thumbnails...' : autoThumbnails.length > 0 ? '✅ Auto-Thumbnails Ready' : ''}
+                   </p>
+                </div>
+
+                <ImageInput label="Thumbnail 1 (Optional - Auto-generated if left blank)" value={formData.col1_1} onChange={(v:any) => setFormData({...formData, col1_1: v})} onUpload={(f:any) => handleImageUpload(f, 'col1_1', true)} />
+                <ImageInput label="Thumbnail 2 (Optional - Auto-generated if left blank)" value={formData.col1_2} onChange={(v:any) => setFormData({...formData, col1_2: v})} onUpload={(f:any) => handleImageUpload(f, 'col1_2', true)} />
+                <ImageInput label="Thumbnail 3 (Optional - Auto-generated if left blank)" value={formData.col2} onChange={(v:any) => setFormData({...formData, col2: v})} onUpload={(f:any) => handleImageUpload(f, 'col2', true)} />
                 
                 {uploading && (
                   <div className="pt-4">
