@@ -290,7 +290,7 @@ const AdminDashboard = () => {
     const isFile = value instanceof File;
     let previewUrl = isFile ? URL.createObjectURL(value) : value;
     if (typeof previewUrl === 'string') {
-      previewUrl = previewUrl.replace('export=view', 'export=download');
+      previewUrl = previewUrl.replace(/https:\/\/drive\.google\.com\/uc\?(?:export=(?:view|download)&)?id=([^&]+).*/, 'https://lh3.googleusercontent.com/d/$1');
     }
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -522,7 +522,7 @@ const AdminDashboard = () => {
                   <div key={v._id} className={`p-5 rounded-2xl flex justify-between items-center border ${v.isFeatured ? 'bg-[#d4a373]/5 border-[#d4a373]/30' : 'bg-black/20 border-white/5'}`}>
                     <div className="flex items-center gap-6">
                       <div className="relative">
-                        <img src={v.col2?.replace('export=view', 'export=download')} className="w-16 h-10 object-cover rounded-md opacity-40" />
+                        <img src={v.col2?.replace(/https:\/\/drive\.google\.com\/uc\?(?:export=(?:view|download)&)?id=([^&]+).*/, 'https://lh3.googleusercontent.com/d/$1')} className="w-16 h-10 object-cover rounded-md opacity-40" />
                         <span className="absolute inset-0 flex items-center justify-center text-xs font-black">{String(i+1).padStart(2,'0')}</span>
                       </div>
                       <div>
@@ -593,7 +593,7 @@ const AdminDashboard = () => {
                     {team.map(member => (
                       <div key={member._id} className="p-4 bg-black/20 border border-white/5 rounded-2xl flex justify-between items-center">
                         <div className="flex items-center gap-4">
-                          <img src={member.image?.replace('export=view', 'export=download')} className="w-10 h-10 rounded-full object-cover border border-white/10" />
+                          <img src={member.image?.replace(/https:\/\/drive\.google\.com\/uc\?(?:export=(?:view|download)&)?id=([^&]+).*/, 'https://lh3.googleusercontent.com/d/$1')} className="w-10 h-10 rounded-full object-cover border border-white/10" />
                           <div>
                             <div className="flex items-center gap-2">
                               <h4 className="font-bold uppercase text-xs">{member.name}</h4>
@@ -653,7 +653,7 @@ const AdminDashboard = () => {
                   {testimonials.map(t => (
                     <div key={t._id} className="p-6 bg-black/20 border border-white/5 rounded-2xl flex justify-between items-start gap-6">
                        <div className="flex gap-4">
-                          <img src={t.image?.replace('export=view', 'export=download')} className="w-12 h-12 rounded-full object-cover border border-[#d4a373]" />
+                          <img src={t.image?.replace(/https:\/\/drive\.google\.com\/uc\?(?:export=(?:view|download)&)?id=([^&]+).*/, 'https://lh3.googleusercontent.com/d/$1')} className="w-12 h-12 rounded-full object-cover border border-[#d4a373]" />
                           <div>
                              <h4 className="font-bold uppercase text-sm">{t.name}</h4>
                              <p className="text-[10px] uppercase opacity-40 mb-3">{t.role}</p>

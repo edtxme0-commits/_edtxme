@@ -73,10 +73,10 @@ const ProjectCard = ({ project, index, progress, range, targetScale }: any) => {
           {/* On mobile: hide the side column to save space, show only main image */}
           <div className="hidden sm:flex flex-col gap-2 sm:gap-4 w-full sm:w-[35%]">
             <div className="overflow-hidden rounded-[16px] sm:rounded-[30px] md:rounded-[40px] flex-1 bg-white/5 relative">
-                <img src={project.col1_1?.replace('export=view', 'export=download')} alt="" className={`w-full h-full object-cover transition-transform duration-700 ${isHovered ? 'scale-110' : 'scale-100'}`} />
+                <img src={project.col1_1?.replace(/https:\/\/drive\.google\.com\/uc\?(?:export=(?:view|download)&)?id=([^&]+).*/, 'https://lh3.googleusercontent.com/d/$1')} alt="" className={`w-full h-full object-cover transition-transform duration-700 ${isHovered ? 'scale-110' : 'scale-100'}`} />
             </div>
             <div className="overflow-hidden rounded-[16px] sm:rounded-[30px] md:rounded-[40px] flex-[1.5] bg-white/5">
-                <img src={project.col1_2?.replace('export=view', 'export=download')} alt="" className={`w-full h-full object-cover transition-transform duration-700 ${isHovered ? 'scale-110' : 'scale-100'}`} />
+                <img src={project.col1_2?.replace(/https:\/\/drive\.google\.com\/uc\?(?:export=(?:view|download)&)?id=([^&]+).*/, 'https://lh3.googleusercontent.com/d/$1')} alt="" className={`w-full h-full object-cover transition-transform duration-700 ${isHovered ? 'scale-110' : 'scale-100'}`} />
             </div>
           </div>
           
@@ -97,7 +97,7 @@ const ProjectCard = ({ project, index, progress, range, targetScale }: any) => {
             </AnimatePresence>
             
             <img 
-              src={project.col2?.replace('export=view', 'export=download')} 
+              src={project.col2?.replace(/https:\/\/drive\.google\.com\/uc\?(?:export=(?:view|download)&)?id=([^&]+).*/, 'https://lh3.googleusercontent.com/d/$1')} 
               alt="" 
               className={`w-full h-full object-cover transition-all duration-1000 ${isHovered ? 'scale-110 blur-sm' : 'scale-100'}`} 
             />
