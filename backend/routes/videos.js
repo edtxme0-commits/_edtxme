@@ -105,7 +105,7 @@ router.post('/upload', authMiddleware, upload.single('video'), async (req, res) 
       isFeatured: isFeatured === 'true',
       isReel: isReel === 'true',
       driveFileId: fileId,
-      streamUrl: `https://drive.google.com/uc?export=view&id=${fileId}`,
+      streamUrl: `https://drive.google.com/uc?export=download&id=${fileId}`,
     });
 
     await newVideo.save();

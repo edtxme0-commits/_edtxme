@@ -11,23 +11,13 @@ const ProjectCard = ({ project, index, progress, range, targetScale }: any) => {
   
   const scale = useTransform(progress, range, [1, targetScale]);
 
-  const handleMouseEnter = async () => {
+  const handleMouseEnter = () => {
     setIsHovered(true);
-    if (videoRef.current) {
-        try {
-            await videoRef.current.play();
-            // Track view on hover/play
-            axios.post(`${API_URL}/api/videos/${project.id}/view`);
-        } catch (e) {}
-    }
+    axios.post(`${API_URL}/api/videos/${project.id}/view`).catch(() => {});
   };
 
   const handleMouseLeave = () => {
     setIsHovered(false);
-    if (videoRef.current) {
-      videoRef.current.pause();
-      videoRef.current.currentTime = 0;
-    }
   };
 
   return (
@@ -79,9 +69,9 @@ const ProjectCard = ({ project, index, progress, range, targetScale }: any) => {
                     className="absolute inset-0 z-20 bg-black"
                   >
                     <video 
-                        ref={videoRef}
-                        src={project.streamUrl} 
+                        src={project.streamUrl?.replace('export=view', 'export=download')} 
                         className="w-full h-full object-cover"
+                        autoPlay
                         muted 
                         loop 
                         playsInline

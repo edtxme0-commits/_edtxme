@@ -58,7 +58,7 @@ const ReelsSection = () => {
                className="relative w-full max-w-[360px] aspect-[9/16] bg-black rounded-[40px] overflow-hidden border border-white/10 shadow-2xl group"
              >
                 <video 
-                  src={reel.streamUrl} 
+                  src={reel.streamUrl?.replace('export=view', 'export=download')} 
                   autoPlay={activeIndex === i}
                   muted 
                   loop 
