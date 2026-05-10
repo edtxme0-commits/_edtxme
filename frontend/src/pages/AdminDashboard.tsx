@@ -68,8 +68,13 @@ const AdminDashboard = () => {
 
   const handleTeamSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setUploading(true);
     try {
-      await axios.post(`${API_URL}/api/team`, teamData, {
+      let imageUrl = teamData.image as any;
+      if (imageUrl instanceof File) {
+        imageUrl = await handleImageUpload(imageUrl) || '';
+      }
+      await axios.post(`${API_URL}/api/team`, { ...teamData, image: imageUrl }, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
       });
       fetchTeam();
@@ -78,6 +83,7 @@ const AdminDashboard = () => {
     } catch (error) {
       alert('Failed to add member.');
     }
+    setUploading(false);
   };
 
   const deleteTeamMember = async (id: string) => {
@@ -102,8 +108,13 @@ const AdminDashboard = () => {
 
   const handleTestimonySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setUploading(true);
     try {
-      await axios.post(`${API_URL}/api/testimonials`, testimonyData, {
+      let imageUrl = testimonyData.image as any;
+      if (imageUrl instanceof File) {
+        imageUrl = await handleImageUpload(imageUrl) || '';
+      }
+      await axios.post(`${API_URL}/api/testimonials`, { ...testimonyData, image: imageUrl }, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
       });
       fetchTestimonials();
@@ -112,6 +123,7 @@ const AdminDashboard = () => {
     } catch (error) {
       alert('Failed to add testimonial.');
     }
+    setUploading(false);
   };
 
   const deleteTestimony = async (id: string) => {
@@ -135,15 +147,27 @@ const AdminDashboard = () => {
   };
 
   const saveConfig = async () => {
+    setUploading(true);
     try {
-      const updates = Object.entries(siteContent).map(([key, value]) => 
-        axios.post(`${API_URL}/api/config`, { key, value })
+      const updatedContent: any = { ...siteContent };
+      for (const key of ['aboutImage1', 'aboutImage2', 'founder1Image', 'founder2Image', 'managerImage']) {
+        if (updatedContent[key] instanceof File) {
+          const url = await handleImageUpload(updatedContent[key]);
+          if (url) updatedContent[key] = url;
+        }
+      }
+      const updates = Object.entries(updatedContent).map(([key, value]) => 
+        axios.post(`${API_URL}/api/config`, { key, value }, {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
+        })
       );
       await Promise.all(updates);
+      setSiteContent(updatedContent as any);
       alert('Settings saved!');
     } catch (error) {
       alert('Save failed.');
     }
+    setUploading(false);
   };
 
   const fetchVideos = async () => {
@@ -167,7 +191,7 @@ const AdminDashboard = () => {
     navigate('/admin');
   };
 
-  const handleImageUpload = async (file: File, targetKey: string, isProject: boolean = false) => {
+  const handleImageUpload = async (file: File): Promise<string | null> => {
     const data = new FormData();
     data.append('image', file);
     try {
@@ -177,16 +201,9 @@ const AdminDashboard = () => {
           'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
         }
       });
-      if (targetKey) {
-        if (isProject) {
-          setFormData(prev => ({ ...prev, [targetKey]: res.data.url }));
-        } else {
-          setSiteContent(prev => ({ ...prev, [targetKey]: res.data.url }));
-        }
-      }
       return res.data.url;
     } catch (error: any) {
-      alert(`Image Upload failed: ${error.response?.data?.message || error.message}`);
+      console.error(`Image Upload failed: ${error.response?.data?.message || error.message}`);
       return null;
     }
   };
@@ -251,28 +268,29 @@ const AdminDashboard = () => {
     }
   };
 
-  const ImageInput = ({ label, value, onChange, onUpload }: any) => {
+  const ImageInput = ({ label, value, onChange }: any) => {
     const fileRef = useRef<HTMLInputElement>(null);
+    const previewUrl = value instanceof File ? URL.createObjectURL(value) : value;
+
     return (
       <div className="space-y-2">
         <label className="block text-[9px] uppercase tracking-widest opacity-50 px-1">{label}</label>
         <div className="flex gap-4">
           <div className="flex-1 space-y-2">
             <div className="flex gap-2">
-              <input type="text" value={value} onChange={e => onChange(e.target.value)} className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-[10px] text-white outline-none" placeholder="URL or Upload" />
-              <button type="button" onClick={() => fileRef.current?.click()} className="px-4 py-3 bg-white/10 hover:bg-white/20 rounded-xl text-[10px] uppercase font-bold transition-all">Upload</button>
+              <input type="text" value={typeof value === 'string' ? value : value?.name || ''} onChange={e => onChange(e.target.value)} className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-[10px] text-white outline-none" placeholder="URL or Select File" />
+              <button type="button" onClick={() => fileRef.current?.click()} className="px-4 py-3 bg-white/10 hover:bg-white/20 rounded-xl text-[10px] uppercase font-bold transition-all">Select</button>
             </div>
-            <input type="file" ref={fileRef} className="hidden" accept="image/*" onChange={async (e) => {
+            <input type="file" ref={fileRef} className="hidden" accept="image/*" onChange={(e) => {
                 if (e.target.files?.[0]) {
-                    const url = await onUpload(e.target.files[0]);
-                    if (url) onChange(url);
+                    onChange(e.target.files[0]);
                 }
                 }}
             />
           </div>
-          {value && (
+          {previewUrl && (
             <div className="w-16 h-16 rounded-xl border border-white/10 overflow-hidden bg-black shrink-0">
-                <img src={value} className="w-full h-full object-cover" />
+                <img src={previewUrl} className="w-full h-full object-cover" />
             </div>
           )}
         </div>
@@ -285,23 +303,30 @@ const AdminDashboard = () => {
     if (!formData.videoFile) return alert('Select video');
     setUploading(true);
 
-    let finalCol1_1 = formData.col1_1;
-    let finalCol1_2 = formData.col1_2;
-    let finalCol2 = formData.col2;
+    let finalCol1_1: any = formData.col1_1;
+    let finalCol1_2: any = formData.col1_2;
+    let finalCol2: any = formData.col2;
 
     try {
-      // Auto upload generated thumbnails to Drive if manual ones are missing
-      if (!finalCol1_1 && autoThumbnails[0]) {
-        finalCol1_1 = await handleImageUpload(autoThumbnails[0], '', true) || '';
+      if (finalCol1_1 instanceof File) {
+        finalCol1_1 = await handleImageUpload(finalCol1_1) || '';
+      } else if (!finalCol1_1 && autoThumbnails[0]) {
+        finalCol1_1 = await handleImageUpload(autoThumbnails[0]) || '';
       }
-      if (!finalCol1_2 && autoThumbnails[1]) {
-        finalCol1_2 = await handleImageUpload(autoThumbnails[1], '', true) || '';
+      
+      if (finalCol1_2 instanceof File) {
+        finalCol1_2 = await handleImageUpload(finalCol1_2) || '';
+      } else if (!finalCol1_2 && autoThumbnails[1]) {
+        finalCol1_2 = await handleImageUpload(autoThumbnails[1]) || '';
       }
-      if (!finalCol2 && autoThumbnails[2]) {
-        finalCol2 = await handleImageUpload(autoThumbnails[2], '', true) || '';
+
+      if (finalCol2 instanceof File) {
+        finalCol2 = await handleImageUpload(finalCol2) || '';
+      } else if (!finalCol2 && autoThumbnails[2]) {
+        finalCol2 = await handleImageUpload(autoThumbnails[2]) || '';
       }
     } catch(err) {
-      console.error("Error uploading auto thumbnails", err);
+      console.error("Error uploading thumbnails", err);
     }
 
     const data = new FormData();
@@ -421,9 +446,9 @@ const AdminDashboard = () => {
                    </p>
                 </div>
 
-                <ImageInput label="Thumbnail 1 (Optional - Auto-generated if left blank)" value={formData.col1_1} onChange={(v:any) => setFormData({...formData, col1_1: v})} onUpload={(f:any) => handleImageUpload(f, 'col1_1', true)} />
-                <ImageInput label="Thumbnail 2 (Optional - Auto-generated if left blank)" value={formData.col1_2} onChange={(v:any) => setFormData({...formData, col1_2: v})} onUpload={(f:any) => handleImageUpload(f, 'col1_2', true)} />
-                <ImageInput label="Thumbnail 3 (Optional - Auto-generated if left blank)" value={formData.col2} onChange={(v:any) => setFormData({...formData, col2: v})} onUpload={(f:any) => handleImageUpload(f, 'col2', true)} />
+                <ImageInput label="Thumbnail 1 (Optional - Auto-generated if left blank)" value={formData.col1_1} onChange={(v:any) => setFormData({...formData, col1_1: v})} />
+                <ImageInput label="Thumbnail 2 (Optional - Auto-generated if left blank)" value={formData.col1_2} onChange={(v:any) => setFormData({...formData, col1_2: v})} />
+                <ImageInput label="Thumbnail 3 (Optional - Auto-generated if left blank)" value={formData.col2} onChange={(v:any) => setFormData({...formData, col2: v})} />
                 
                 {uploading && (
                   <div className="pt-4">
@@ -487,8 +512,8 @@ const AdminDashboard = () => {
               <div className="space-y-6">
                 <p className="text-[10px] uppercase opacity-40">Decorative Icons</p>
                 <div className="grid grid-cols-1 gap-4">
-                  <ImageInput label="Icon 1" value={siteContent.aboutImage1} onChange={(v: string) => setSiteContent({...siteContent, aboutImage1: v})} onUpload={(f: File) => handleImageUpload(f, 'aboutImage1')} />
-                  <ImageInput label="Icon 2" value={siteContent.aboutImage2} onChange={(v: string) => setSiteContent({...siteContent, aboutImage2: v})} onUpload={(f: File) => handleImageUpload(f, 'aboutImage2')} />
+                  <ImageInput label="Icon 1" value={siteContent.aboutImage1} onChange={(v: any) => setSiteContent({...siteContent, aboutImage1: v})} />
+                  <ImageInput label="Icon 2" value={siteContent.aboutImage2} onChange={(v: any) => setSiteContent({...siteContent, aboutImage2: v})} />
                 </div>
               </div>
             </div>
@@ -507,7 +532,7 @@ const AdminDashboard = () => {
                       <input type="checkbox" checked={teamData.isFounder} onChange={e => setTeamData({...teamData, isFounder: e.target.checked})} className="w-4 h-4 accent-[#d4a373]" />
                       <span className="text-[10px] uppercase font-bold opacity-60">Founder Status</span>
                     </div>
-                    <ImageInput label="Photo" value={teamData.image} onChange={(v:any) => setTeamData({...teamData, image: v})} onUpload={(f:any) => handleImageUpload(f, 'image', true)} />
+                    <ImageInput label="Photo" value={teamData.image} onChange={(v:any) => setTeamData({...teamData, image: v})} />
                     <button type="submit" className="w-full py-4 bg-[#d4a373] text-black text-xs font-bold uppercase rounded-xl hover:scale-[0.98] transition-transform">Add to Team</button>
                   </form>
                 </div>
@@ -543,17 +568,17 @@ const AdminDashboard = () => {
                     <p className="text-[8px] uppercase opacity-30">Management / Other</p>
                     <input type="text" value={siteContent.managerName} onChange={e => setSiteContent({...siteContent, managerName: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white font-bold outline-none text-xs" placeholder="Name" />
                     <input type="text" value={siteContent.managerRole} onChange={e => setSiteContent({...siteContent, managerRole: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-[#d4a373] font-bold outline-none text-[10px] uppercase tracking-widest" placeholder="Role (e.g. Manager)" />
-                    <ImageInput label="Photo" value={siteContent.managerImage} onChange={(v: string) => setSiteContent({...siteContent, managerImage: v})} onUpload={(f: File) => handleImageUpload(f, 'managerImage')} />
+                    <ImageInput label="Photo" value={siteContent.managerImage} onChange={(v: any) => setSiteContent({...siteContent, managerImage: v})} />
                   </div>
                   <div className="bg-white/5 p-6 rounded-[24px] space-y-4 border border-white/5 opacity-80">
                     <p className="text-[8px] uppercase opacity-30">Founder 1 (Fixed)</p>
                     <div className="w-full bg-black/20 border border-white/5 rounded-xl px-4 py-2 text-white/50 font-bold text-xs">{siteContent.founder1Name}</div>
-                    <ImageInput label="Photo" value={siteContent.founder1Image} onChange={(v: string) => setSiteContent({...siteContent, founder1Image: v})} onUpload={(f: File) => handleImageUpload(f, 'founder1Image')} />
+                    <ImageInput label="Photo" value={siteContent.founder1Image} onChange={(v: any) => setSiteContent({...siteContent, founder1Image: v})} />
                   </div>
                   <div className="bg-white/5 p-6 rounded-[24px] space-y-4 border border-white/5 opacity-80">
                     <p className="text-[8px] uppercase opacity-30">Founder 2 (Fixed)</p>
                     <div className="w-full bg-black/20 border border-white/5 rounded-xl px-4 py-2 text-white/50 font-bold text-xs">{siteContent.founder2Name}</div>
-                    <ImageInput label="Photo" value={siteContent.founder2Image} onChange={(v: string) => setSiteContent({...siteContent, founder2Image: v})} onUpload={(f: File) => handleImageUpload(f, 'founder2Image')} />
+                    <ImageInput label="Photo" value={siteContent.founder2Image} onChange={(v: any) => setSiteContent({...siteContent, founder2Image: v})} />
                   </div>
                 </div>
               </div>
@@ -568,7 +593,7 @@ const AdminDashboard = () => {
                  <input type="text" placeholder="Client Name" value={testimonyData.name} onChange={e => setTestimonyData({...testimonyData, name: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none" required />
                  <input type="text" placeholder="Role (e.g. Content Creator)" value={testimonyData.role} onChange={e => setTestimonyData({...testimonyData, role: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none" required />
                  <textarea placeholder="Testimonial Text" value={testimonyData.text} onChange={e => setTestimonyData({...testimonyData, text: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none h-32 resize-none" required />
-                 <ImageInput label="Client Photo" value={testimonyData.image} onChange={(v:any) => setTestimonyData({...testimonyData, image: v})} onUpload={(f:any) => handleImageUpload(f, 'image', true)} />
+                 <ImageInput label="Client Photo" value={testimonyData.image} onChange={(v:any) => setTestimonyData({...testimonyData, image: v})} />
                  <button type="submit" className="w-full py-4 bg-[#d4a373] text-black text-xs font-bold uppercase rounded-xl mt-4 hover:scale-[0.98] transition-transform">Add Testimonial</button>
               </form>
             </section>
