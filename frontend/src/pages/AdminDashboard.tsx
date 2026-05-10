@@ -270,7 +270,27 @@ const AdminDashboard = () => {
 
   const ImageInput = ({ label, value, onChange }: any) => {
     const fileRef = useRef<HTMLInputElement>(null);
-    const previewUrl = value instanceof File ? URL.createObjectURL(value) : value;
+    const [isUploading, setIsUploading] = useState(false);
+    
+    // value can be a string (URL) or a File object.
+    const isFile = value instanceof File;
+    const previewUrl = isFile ? URL.createObjectURL(value) : value;
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files?.[0]) {
+        onChange(e.target.files[0]);
+      }
+    };
+
+    const doUpload = async () => {
+      if (!isFile) return;
+      setIsUploading(true);
+      const url = await handleImageUpload(value);
+      setIsUploading(false);
+      if (url) {
+        onChange(url); // Set the form value to the final URL string
+      }
+    };
 
     return (
       <div className="space-y-2">
@@ -278,19 +298,31 @@ const AdminDashboard = () => {
         <div className="flex gap-4">
           <div className="flex-1 space-y-2">
             <div className="flex gap-2">
-              <input type="text" value={typeof value === 'string' ? value : value?.name || ''} onChange={e => onChange(e.target.value)} className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-[10px] text-white outline-none" placeholder="URL or Select File" />
-              <button type="button" onClick={() => fileRef.current?.click()} className="px-4 py-3 bg-white/10 hover:bg-white/20 rounded-xl text-[10px] uppercase font-bold transition-all">Select</button>
+              <input 
+                 type="text" 
+                 value={isFile ? value.name : value || ''} 
+                 onChange={e => onChange(e.target.value)} 
+                 className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-[10px] text-white outline-none" 
+                 placeholder="URL or Select File" 
+              />
+              {!isFile ? (
+                <button type="button" onClick={() => fileRef.current?.click()} className="px-4 py-3 bg-white/10 hover:bg-white/20 rounded-xl text-[10px] uppercase font-bold transition-all shrink-0">Select Image</button>
+              ) : (
+                <div className="flex gap-2 shrink-0">
+                  <button type="button" onClick={() => fileRef.current?.click()} className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-[10px] uppercase font-bold transition-all">Change</button>
+                  <button type="button" onClick={doUpload} disabled={isUploading} className="px-4 py-3 bg-green-500 text-black rounded-xl text-[10px] uppercase font-black transition-all hover:scale-[0.98]">
+                    {isUploading ? 'Uploading...' : 'Upload Now'}
+                  </button>
+                </div>
+              )}
             </div>
-            <input type="file" ref={fileRef} className="hidden" accept="image/*" onChange={(e) => {
-                if (e.target.files?.[0]) {
-                    onChange(e.target.files[0]);
-                }
-                }}
-            />
+            <input type="file" ref={fileRef} className="hidden" accept="image/*" onChange={handleFileChange} />
           </div>
           {previewUrl && (
-            <div className="w-16 h-16 rounded-xl border border-white/10 overflow-hidden bg-black shrink-0">
-                <img src={previewUrl} className="w-full h-full object-cover" />
+            <div className="w-16 h-16 rounded-xl border border-white/10 overflow-hidden bg-black shrink-0 relative">
+                {isFile && !isUploading && <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-[8px] font-bold text-white uppercase text-center p-1 z-10 pointer-events-none">Not<br/>Uploaded</div>}
+                {isUploading && <div className="absolute inset-0 bg-black/80 flex items-center justify-center text-[8px] font-bold text-white uppercase text-center p-1 z-10 pointer-events-none">Uploading...</div>}
+                <img src={previewUrl} className={`w-full h-full object-cover ${(isFile || isUploading) ? 'opacity-50' : ''}`} />
             </div>
           )}
         </div>
