@@ -56,7 +56,7 @@ const TestimonialsSection = () => {
                     </p>
                     
                     <div className="flex flex-col items-center">
-                        <img src={list[index].image?.replace(/https:\/\/drive\.google\.com\/uc\?(?:export=(?:view|download)&)?id=([^&]+).*/, 'https://lh3.googleusercontent.com/d/$1')} alt={list[index].name} className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover mb-3 sm:mb-4 border-2 border-[#d4a373]" />
+                        <img src={getImageUrl(list[index].image)} alt={list[index].name} className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover mb-3 sm:mb-4 border-2 border-[#d4a373]" />
                         <h4 className="font-bold uppercase tracking-widest text-sm sm:text-base">{list[index].name}</h4>
                         <p className="text-[9px] sm:text-[10px] uppercase opacity-40 tracking-[0.2em]">{list[index].role}</p>
                     </div>

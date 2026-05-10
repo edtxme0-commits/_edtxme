@@ -3,6 +3,11 @@ import API_URL from '../apiConfig';
 export const getImageUrl = (url: string | undefined | null) => {
   if (!url) return '';
   
+  // Fix for legacy placeholder images stored in the database
+  if (url.includes('via.placeholder.com')) {
+    return 'https://ui-avatars.com/api/?name=User&background=random';
+  }
+  
   // If it's already a proxy URL
   if (url.startsWith('/api/images/proxy')) {
     return `${API_URL}${url}`;

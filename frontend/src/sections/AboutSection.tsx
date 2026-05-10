@@ -12,12 +12,12 @@ const AboutSection = () => {
     aboutImage1: 'https://shrug-person-78902957.figma.site/_components/v2/ebb2b8f25d8e24d5f0a5ca8af4c950de81aa2fd7/moon_icon.11395d36.png',
     aboutImage2: 'https://shrug-person-78902957.figma.site/_components/v2/ebb2b8f25d8e24d5f0a5ca8af4c950de81aa2fd7/p59_1.4659672e.png',
     founder1Name: 'Shubham',
-    founder1Image: 'https://via.placeholder.com/150',
+    founder1Image: 'https://ui-avatars.com/api/?name=User&background=random',
     founder2Name: 'Saurabh',
-    founder2Image: 'https://via.placeholder.com/150',
+    founder2Image: 'https://ui-avatars.com/api/?name=User&background=random',
     managerName: 'Nitin',
     managerRole: 'Manager',
-    managerImage: 'https://via.placeholder.com/150'
+    managerImage: 'https://ui-avatars.com/api/?name=User&background=random'
   });
   const [team, setTeam] = useState<any[]>([]);
 
