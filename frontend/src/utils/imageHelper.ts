@@ -55,6 +55,11 @@ export const getVideoUrl = (url: string | undefined | null) => {
     if (matchFile) id = matchFile[1];
   }
   
+  if (!id) {
+    const proxyMatch = url.match(/\/proxy\/([^\/]+)/);
+    if (proxyMatch) id = proxyMatch[1];
+  }
+  
   if (id) {
     return `${API_URL}/api/images/proxy/${id}`;
   }
