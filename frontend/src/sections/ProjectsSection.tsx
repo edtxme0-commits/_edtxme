@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
 import { getImageUrl, getVideoUrl } from '../utils/imageHelper';
 import API_URL from '../apiConfig';
 import LiveProjectButton from '../components/LiveProjectButton';

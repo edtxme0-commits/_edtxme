@@ -46,11 +46,12 @@ const ReelsSection = () => {
   }, []);
 
   const handleScroll = () => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || reels.length === 0) return;
     const scrollLeft = containerRef.current.scrollLeft;
-    const width = containerRef.current.offsetWidth;
-    const index = Math.round(scrollLeft / width);
-    setActiveIndex(index);
+    const scrollWidth = containerRef.current.scrollWidth;
+    const itemWidth = scrollWidth / reels.length;
+    const index = Math.round(scrollLeft / itemWidth);
+    setActiveIndex(Math.min(index, reels.length - 1));
   };
 
   const [activeReel, setActiveReel] = useState<any>(null);
