@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { getImageUrl } from '../utils/imageHelper';
 import API_URL from '../apiConfig';
 import FadeIn from '../components/FadeIn';

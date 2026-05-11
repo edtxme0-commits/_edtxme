@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import API_URL from '../apiConfig';
+import { getImageUrl } from '../utils/imageHelper';
 
 const MarqueeSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -65,7 +66,7 @@ const MarqueeSection = () => {
         {row1Images.map((src, i) => (
           <img 
             key={`r1-${i}`} 
-            src={src} 
+            src={getImageUrl(src)} 
             loading="lazy"
             className="w-[200px] sm:w-[400px] md:w-[480px] h-[130px] sm:h-[260px] md:h-[320px] rounded-[14px] sm:rounded-[24px] object-cover shrink-0 grayscale hover:grayscale-0 transition-all duration-700" 
             alt="Portfolio Work" 
@@ -81,7 +82,7 @@ const MarqueeSection = () => {
         {row2Images.map((src, i) => (
           <img 
             key={`r2-${i}`} 
-            src={src} 
+            src={getImageUrl(src)} 
             loading="lazy"
             className="w-[200px] sm:w-[400px] md:w-[480px] h-[130px] sm:h-[260px] md:h-[320px] rounded-[14px] sm:rounded-[24px] object-cover shrink-0 grayscale hover:grayscale-0 transition-all duration-700" 
             alt="Portfolio Work" 
