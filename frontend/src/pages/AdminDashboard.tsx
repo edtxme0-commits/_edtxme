@@ -298,6 +298,7 @@ const AdminDashboard = () => {
   const ImageInput = ({ label, value, onChange }: any) => {
     const fileRef = useRef<HTMLInputElement>(null);
     const [isUploading, setIsUploading] = useState(false);
+    const isFile = value instanceof File;
     
     // value can be a string (URL) or a File object.
     let previewUrl = isFile ? URL.createObjectURL(value) : getImageUrl(value);
